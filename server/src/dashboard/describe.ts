@@ -1,6 +1,7 @@
-import type { TypeSafeClient, Usage } from '@typesafe-ai/sdk';
+import type { TypeSafeClient } from '@typesafe-ai/sdk';
 import { CITY_NAMES, type City } from '../cities.ts';
-import { SHOW_JEV_RESULT } from '../feature-flags.ts';
+import { ask } from '../jev/ask.ts';
+import type { Metrics } from '../jev/metrics.ts';
 import type {
   BoardingPassesTile,
   BookedFlightsListTile,
@@ -36,7 +37,7 @@ const DEFAULT_SEARCH_TO: City = 'Hamburg';
 
 type Placed = { tile: Tile; position: number };
 
-export type Described = { spec: DashboardSpec; notes: string[]; usage: Usage };
+export type Described = { spec: DashboardSpec; notes: string[]; metrics: Metrics };
 
 function toCity(place: Place): City | null {
   if (place === 'NOT_DEFINED' || place === 'NOT_SUPPORTED') {
@@ -183,7 +184,7 @@ function toPosition(answer: PositionAnswer): number {
   return weights.reduce((sum, [position, probability]) => sum + Number(position) * probability, 0);
 }
 
-function toDescribed(answers: Answers, usage: Usage): Described {
+function toDescribed(answers: Answers, metrics: Metrics): Described {
   const placed: Placed[] = [];
   const missing: TileType[] = [];
 
@@ -202,16 +203,10 @@ function toDescribed(answers: Answers, usage: Usage): Described {
 
   const ordered = toTiles(placed);
   const notes = toNotes(missing, ordered);
-  return { spec: { tiles: ordered }, notes, usage };
+  return { spec: { tiles: ordered }, notes, metrics };
 }
 
 export async function describe(client: TypeSafeClient, description: string): Promise<Described> {
-  const result = await client.systemOne({ state: { description }, questions: QUESTIONS });
-
-  if (SHOW_JEV_RESULT) {
-    const json = JSON.stringify(result, null, 2);
-    console.log('Result from Jev: \n' + json + '\n');
-  }
-
-  return toDescribed(result.answers, result.usage);
+  const { answers, metrics } = await ask(client, { description }, QUESTIONS);
+  return toDescribed(answers, metrics);
 }

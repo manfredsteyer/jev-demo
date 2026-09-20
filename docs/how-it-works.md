@@ -75,8 +75,12 @@ exported in your shell takes precedence. Get a key at <https://console.typesafe.
 overrides the server's port, and `PUBLIC_URL` the address the photo URLs start with,
 `http://localhost:3000` by default. Set `SHOW_JEV_RESULT` in
 [server/src/feature-flags.ts](../server/src/feature-flags.ts) to print Jev's raw answer on the
-server console before each reply, and `SHOW_TOKEN_USAGE` to append the tokens
-Jev used as a final text message of every run.
+server console before each reply, and `SHOW_METRICS` to append the time Jev took,
+the tokens it used and an estimate of what they cost as a final text message of
+every run. The estimate follows the [price list](https://docs.typesafe.ai/models):
+Jev charges input tokens only, output tokens are free. The time is the round
+trip measured by the server, split into the processing at TypeSafe, read from the
+`x-envoy-upstream-service-time` response header, and the rest for the network.
 
 ## What goes over the wire
 

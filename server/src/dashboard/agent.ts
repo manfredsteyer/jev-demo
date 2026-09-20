@@ -1,6 +1,6 @@
 import { randomUUID } from 'node:crypto';
 import type { RunAgentInput } from '@ag-ui/core';
-import type { TypeSafeClient, Usage } from '@typesafe-ai/sdk';
+import type { TypeSafeClient } from '@typesafe-ai/sdk';
 import {
   emitActivitySnapshot,
   emitRunError,
@@ -12,7 +12,8 @@ import {
   toConversation,
   type Emit,
 } from '../ag-ui.ts';
-import { SHOW_TOKEN_USAGE } from '../feature-flags.ts';
+import { SHOW_METRICS } from '../feature-flags.ts';
+import { toReport, type Metrics } from '../jev/metrics.ts';
 import { compile } from './a2ui/compile.ts';
 import { A2UI_ACTIVITY_TYPE, A2UI_OPERATIONS_KEY } from './a2ui/protocol.ts';
 import { describe } from './describe.ts';
@@ -27,8 +28,8 @@ function readDescription(input: RunAgentInput): string {
   return request?.content.trim() ?? '';
 }
 
-function emitTokenUsage(usage: Usage, emit: Emit): void {
-  const text = `Jev used ${usage.input_tokens} input tokens and ${usage.output_tokens} output tokens.`;
+function emitMetrics(metrics: Metrics, emit: Emit): void {
+  const text = toReport(metrics);
   emitTextMessage(text, emit);
 }
 
@@ -51,7 +52,7 @@ async function generate(client: TypeSafeClient, input: RunAgentInput, emit: Emit
     return;
   }
 
-  const { spec, notes, usage } = await describe(client, description);
+  const { spec, notes, metrics } = await describe(client, description);
 
   for (const note of notes) {
     emitTextMessage(note, emit);
@@ -59,8 +60,8 @@ async function generate(client: TypeSafeClient, input: RunAgentInput, emit: Emit
   if (spec.tiles.length > 0) {
     await renderDashboard(spec, emit);
   }
-  if (SHOW_TOKEN_USAGE) {
-    emitTokenUsage(usage, emit);
+  if (SHOW_METRICS) {
+    emitMetrics(metrics, emit);
   }
 }
 

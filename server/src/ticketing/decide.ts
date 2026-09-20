@@ -1,8 +1,9 @@
-import { choice, type TypeSafeClient, type SystemOneResult, type Usage } from '@typesafe-ai/sdk';
+import { choice, type TypeSafeClient, type SystemOneResult } from '@typesafe-ai/sdk';
 import { getBookedFlights } from '../tools/bookings.ts';
 import { searchFlights, type Flight } from '../tools/flights.ts';
-import { SHOW_JEV_RESULT } from '../feature-flags.ts';
 import { CITIES, CITY_NAMES } from '../cities.ts';
+import { ask } from '../jev/ask.ts';
+import type { Metrics } from '../jev/metrics.ts';
 import type { State } from './state.ts';
 
 const PLACES = {
@@ -64,7 +65,7 @@ export type Reply = { action: 'reply'; text: string };
 
 export type Decision = ToolRun | Reply;
 
-export type Decided = { decision: Decision; usage: Usage };
+export type Decided = { decision: Decision; metrics: Metrics };
 
 function askForRoute(from: string | null, to: string | null): string {
   if (from === null && to === null) {
@@ -106,15 +107,9 @@ function toDecision(answers: Answers): Decision {
 }
 
 export async function decide(client: TypeSafeClient, state: State): Promise<Decided> {
-  const result = await client.systemOne({ state, questions: QUESTIONS });
-
-  if (SHOW_JEV_RESULT) {
-    const json = JSON.stringify(result, null, 2);
-    console.log('Result from Jev: \n' + json + '\n');
-  }
-
-  const decision = toDecision(result.answers);
-  return { decision, usage: result.usage };
+  const { answers, metrics } = await ask(client, state, QUESTIONS);
+  const decision = toDecision(answers);
+  return { decision, metrics };
 }
 
 export function runTool(run: ToolRun): Promise<Flight[]> {

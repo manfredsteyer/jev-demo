@@ -1,6 +1,6 @@
 import { randomUUID } from 'node:crypto';
 import type { RunAgentInput } from '@ag-ui/core';
-import type { TypeSafeClient, Usage } from '@typesafe-ai/sdk';
+import type { TypeSafeClient } from '@typesafe-ai/sdk';
 import {
   emitRunError,
   emitRunFinished,
@@ -15,7 +15,8 @@ import { decide, runTool, type ToolRun } from './decide.ts';
 import { toMessage } from './message.ts';
 import { toState } from './state.ts';
 import type { Flight } from '../tools/flights.ts';
-import { SHOW_TOKEN_USAGE } from '../feature-flags.ts';
+import { SHOW_METRICS } from '../feature-flags.ts';
+import { toReport, type Metrics } from '../jev/metrics.ts';
 
 export type FlightWidgetArgs = Pick<Flight, 'id' | 'from' | 'to' | 'date' | 'delayed'>;
 
@@ -38,8 +39,8 @@ function emitResponse(text: string, flights: Flight[], emit: Emit): void {
   emitFlightWidgets(flights, messageId, emit);
 }
 
-function emitTokenUsage(usage: Usage, emit: Emit): void {
-  const text = `Jev used ${usage.input_tokens} input tokens and ${usage.output_tokens} output tokens.`;
+function emitMetrics(metrics: Metrics, emit: Emit): void {
+  const text = toReport(metrics);
   emitTextMessage(text, emit);
 }
 
@@ -59,7 +60,7 @@ export async function runAgent(client: TypeSafeClient, input: RunAgentInput, emi
   try {
     const turns = toConversation(input.messages);
     const state = toState(turns);
-    const { decision, usage } = await decide(client, state);
+    const { decision, metrics } = await decide(client, state);
 
     if (decision.action === 'tool') {
       const flights = await executeTool(decision, emit);
@@ -69,8 +70,8 @@ export async function runAgent(client: TypeSafeClient, input: RunAgentInput, emi
       emitTextMessage(decision.text, emit);
     }
 
-    if (SHOW_TOKEN_USAGE) {
-      emitTokenUsage(usage, emit);
+    if (SHOW_METRICS) {
+      emitMetrics(metrics, emit);
     }
 
     emitRunFinished(input, emit);
