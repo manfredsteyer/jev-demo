@@ -1,8 +1,8 @@
 import readline from 'node:readline/promises';
 import { choice, TypeSafeClient, type SystemOneResult } from '@typesafe-ai/sdk';
 import { getBookedFlights } from './tools/bookings.ts';
-import { searchFlights } from './tools/flights.ts';
-import { toMessage } from './message.ts';
+import { searchFlights, type Flight } from './tools/flights.ts';
+import { toHeading, toMessage } from './message.ts';
 import { SHOW_JEV_RESULT } from './feature-flags.ts';
 
 // null values because city names don't need further descriptions
@@ -11,22 +11,42 @@ const CITIES = {
   'Graz': null, 'Hamburg': null, 'Innsbruck': null, 'Linz': null,
   'London': null, 'München': null, 'Paris': null, 'Rome': null,
   'Salzburg': null, 'Stuttgart': null, 'Wien': null, 'Zürich': null,
+} as const;
+
+const CITY_OPTIONS = {
+  ...CITIES,
   'NOT_DEFINED': 'No place is named for this end of the journey.',
   'NOT_SUPPORTED': 'A place is named, but it is not one of the cities listed here.',
 } as const;
 
-const CITY_NAMES = Object.keys(CITIES).filter(
-  (name) => name !== 'NOT_DEFINED' && name !== 'NOT_SUPPORTED',
-);
+const BOOKED_FROM_OPTIONS = {
+  ...CITY_OPTIONS,
+  'NOT_DEFINED': 'The new message names no departure city; bookings from anywhere are meant.',
+} as const;
+
+const BOOKED_TO_OPTIONS = {
+  ...CITY_OPTIONS,
+  'NOT_DEFINED': 'The new message names no destination; bookings to anywhere are meant.',
+} as const;
+
+const CITY_NAMES = Object.keys(CITIES);
+
+const CONVERSATION = '`conversation` is the exchange so far; the last entry is the new message.';
 
 const QUESTIONS = {
   tool: choice(
     'A traveller writes to an assistant that searches flights and lists the flights ' +
-      'they have booked. `conversation` is the exchange so far; the last entry is the ' +
-      'new message. What do they want now?',
+      'they have booked. ' +
+      CONVERSATION +
+      ' What do they want now?',
     {
-      flights: 'To travel somewhere, or to see connections between two places.',
-      bookings: 'To see the flights they have already booked: their own reservations.',
+      flights:
+        'To find connections they could take: to travel somewhere, or to see flights between ' +
+        'two places, including the return flight for a flight that was shown. Asking for ' +
+        'flights between two places is a search, even when that route is already booked.',
+      bookings:
+        'To see or check what they have already booked: their own reservations, such as ' +
+        'whether they have already booked a flight or its return flight.',
       none:
         'Neither: a greeting, a thank-you, or something this assistant cannot do, ' +
         'such as hotels or trains.',
@@ -34,23 +54,78 @@ const QUESTIONS = {
   ),
 
   from: choice(
-    'Which city does the traveller now name as the start of the journey, the place departed ' +
-      'from? The last entry of `conversation` is the new message; earlier entries count only ' +
-      'when the new message builds on them, as a return flight does.',
-    CITIES,
+    'Which city is the start of the journey the traveller now asks about, the place ' +
+      'departed from? ' +
+      CONVERSATION +
+      ' Earlier entries count only when the new message builds on them: a return flight ' +
+      'belongs to the flights shown last, `flightsShown` of the entry just before the new ' +
+      'message, and starts where they end; a message that changes only the destination ' +
+      'keeps their start.',
+    CITY_OPTIONS,
   ),
 
   to: choice(
-    'Which city does the traveller now name as the end of the journey, the destination? ' +
-      'The last entry of `conversation` is the new message; earlier entries count only when ' +
-      'the new message builds on them, as a return flight does.',
-    CITIES,
+    'Which city is the end of the journey the traveller now asks about, the destination? ' +
+      CONVERSATION +
+      ' Earlier entries count only when the new message builds on them: a return flight ' +
+      'belongs to the flights shown last, `flightsShown` of the entry just before the new ' +
+      'message, and ends where they start; a message that changes only the place of ' +
+      'departure keeps their destination.',
+    CITY_OPTIONS,
+  ),
+
+  bookedFrom: choice(
+    'Suppose the traveller wants to see the flights they have booked. Which city does the ' +
+      'new message name as the place those booked flights depart from? ' +
+      CONVERSATION +
+      ' A city named as the destination does not count, and neither do the flights in ' +
+      '`flightsShown` or routes searched earlier.',
+    BOOKED_FROM_OPTIONS,
+  ),
+
+  bookedTo: choice(
+    'Suppose the traveller wants to see the flights they have booked. Which city does the ' +
+      'new message name as the destination those booked flights go to? ' +
+      CONVERSATION +
+      ' A city named as the place of departure does not count, and neither do the flights ' +
+      'in `flightsShown` or routes searched earlier.',
+    BOOKED_TO_OPTIONS,
+  ),
+
+  bookedRefers: choice(
+    'Suppose the traveller wants to see the flights they have booked. ' +
+      CONVERSATION +
+      ' Does the new message point at a flight in `flightsShown` of the entry before it?',
+    {
+      none:
+        'No: it asks for bookings on its own terms, in general or by naming cities, as ' +
+        '"my bookings" or "my bookings to Berlin" does.',
+      same:
+        'Yes, at a flight that was shown: "that flight", "this one", "one of these", ' +
+        '"have I booked it?".',
+      return:
+        'Yes, at the opposite direction of a flight that was shown: its return flight, ' +
+        'the way back.',
+    },
   ),
 };
 
 type Answers = SystemOneResult<typeof QUESTIONS>['answers'];
 
-type Turn = { role: 'user' | 'assistant'; content: string };
+type ShownFlight = { from: string; to: string; date: string };
+
+type Route = { from: string; to: string };
+
+type Turn =
+  | { role: 'user'; content: string }
+  | { role: 'assistant'; content: string; flightsShown: ShownFlight[] };
+
+function toShownFlights(flights: Flight[] | null): ShownFlight[] {
+  if (flights === null) {
+    return [];
+  }
+  return flights.map(({ from, to, date }) => ({ from, to, date }));
+}
 
 function askForRoute(from: string | null, to: string | null): string {
   if (from === null && to === null) {
@@ -62,16 +137,45 @@ function askForRoute(from: string | null, to: string | null): string {
   return `Happy to look for flights from ${from}. Which city would you like to fly to?`;
 }
 
-async function runTool(answers: Answers) {
-  if (answers.from.choice === 'NOT_SUPPORTED' || answers.to.choice === 'NOT_SUPPORTED') {
+function shownRoute(turn: Turn | undefined): Route | null {
+  if (turn === undefined || turn.role !== 'assistant') {
+    return null;
+  }
+  const [first, ...others] = turn.flightsShown;
+  if (first === undefined) {
+    return null;
+  }
+  const sameRoute = others.every((flight) => flight.from === first.from && flight.to === first.to);
+  if (!sameRoute) {
+    return null;
+  }
+  return { from: first.from, to: first.to };
+}
+
+function routeOf(answers: Answers, shown: Route | null): Route {
+  if (answers.tool.choice !== 'bookings') {
+    return { from: answers.from.choice, to: answers.to.choice };
+  }
+  if (shown !== null && answers.bookedRefers.choice === 'same') {
+    return shown;
+  }
+  if (shown !== null && answers.bookedRefers.choice === 'return') {
+    return { from: shown.to, to: shown.from };
+  }
+  return { from: answers.bookedFrom.choice, to: answers.bookedTo.choice };
+}
+
+async function runTool(answers: Answers, shown: Route | null) {
+  const route = routeOf(answers, shown);
+
+  if (route.from === 'NOT_SUPPORTED' || route.to === 'NOT_SUPPORTED') {
     const cities = CITY_NAMES.join(', ');
     const reply = `I only fly between these cities: ${cities}.`;
-    const args = { from: answers.from.choice, to: answers.to.choice };
-    return { tool: answers.tool.choice, args, result: null, reply };
+    return { tool: answers.tool.choice, args: route, result: null, reply };
   }
 
-  const from = answers.from.choice === 'NOT_DEFINED' ? null : answers.from.choice;
-  const to = answers.to.choice === 'NOT_DEFINED' ? null : answers.to.choice;
+  const from = route.from === 'NOT_DEFINED' ? null : route.from;
+  const to = route.to === 'NOT_DEFINED' ? null : route.to;
 
   switch (answers.tool.choice) {
     case 'flights': {
@@ -101,7 +205,7 @@ if (!process.env['TYPESAFE_API_KEY']) {
 
 const client = new TypeSafeClient();
 
-const MAX_TURNS = 10;
+const MAX_TURNS = 2;
 
 const conversation: Turn[] = [];
 
@@ -117,9 +221,10 @@ for (;;) {
     continue;
   }
 
-  conversation.push({ role: 'user', content: message });
+  const previous = conversation.at(-1);
+  const shown = shownRoute(previous);
 
-  console.log('conversation', conversation)
+  conversation.push({ role: 'user', content: message });
 
   try {
     const state = { conversation };
@@ -130,11 +235,14 @@ for (;;) {
       console.log('Result from Jev: \n' + json + '\n');
     }
 
-    const call = await runTool(result.answers);
+    const call = await runTool(result.answers, shown);
 
     const output = toMessage(call);
-    
-    conversation.push({ role: 'assistant', content: output });
+    console.log(output + '\n');
+
+    const content = toHeading(call);
+    const flightsShown = toShownFlights(call.result);
+    conversation.push({ role: 'assistant', content, flightsShown });
 
     if (conversation.length > MAX_TURNS) {
       conversation.splice(0, conversation.length - MAX_TURNS);
