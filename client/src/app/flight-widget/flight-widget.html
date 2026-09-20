@@ -1,0 +1,14 @@
+@if (flight(); as flight) {
+  <article class="flight" [class.delayed]="flight.delayed">
+    <header>
+      <span class="route">{{ flight.from }} → {{ flight.to }}</span>
+      @if (flight.delayed) {
+        <span class="badge">delayed</span>
+      }
+    </header>
+    <p class="date">{{ flight.date | date: 'EEE, d MMM y, HH:mm' }}</p>
+    <p class="id">Flight #{{ flight.id }}</p>
+  </article>
+} @else {
+  <p class="loading">Loading flight…</p>
+}

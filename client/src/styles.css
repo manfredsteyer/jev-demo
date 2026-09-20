@@ -1,0 +1,8 @@
+@import '@copilotkit/angular/styles.css';
+
+html,
+body {
+  height: 100%;
+  margin: 0;
+  font-family: system-ui, sans-serif;
+}

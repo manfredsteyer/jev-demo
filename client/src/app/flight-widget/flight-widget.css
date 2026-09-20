@@ -1,0 +1,48 @@
+.flight {
+  margin: 0.5rem 0;
+  padding: 0.75rem 1rem;
+  border: 1px solid #d0d7de;
+  border-left: 4px solid #2563eb;
+  border-radius: 0.5rem;
+  background: #f8fafc;
+  color: #0f172a;
+}
+
+.flight.delayed {
+  border-left-color: #dc2626;
+}
+
+header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.route {
+  font-weight: 600;
+}
+
+.badge {
+  padding: 0.1rem 0.5rem;
+  border-radius: 999px;
+  background: #fee2e2;
+  color: #b91c1c;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+}
+
+.date,
+.id {
+  margin: 0.25rem 0 0;
+  font-size: 0.875rem;
+}
+
+.id {
+  color: #64748b;
+}
+
+.loading {
+  color: #64748b;
+  font-style: italic;
+}

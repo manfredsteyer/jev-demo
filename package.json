@@ -1,21 +1,15 @@
 {
   "name": "first-steps",
-  "version": "1.0.0",
-  "description": "A minimal example of calling functions with Jev",
-  "main": "src/index.ts",
-  "type": "module",
+  "private": true,
+  "description": "Function calling with Jev: an AG-UI server and a CopilotKit client",
   "scripts": {
-    "start": "node --env-file-if-exists=.env src/index.ts",
-    "typecheck": "tsc --noEmit"
-  },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "dependencies": {
-    "@typesafe-ai/sdk": "^0.6.0"
+    "dev:server": "npm --prefix server run dev",
+    "start:server": "npm --prefix server start",
+    "start:client": "npm --prefix client start",
+    "dev": "concurrently --names server,client --prefix-colors blue,green npm:dev:server npm:start:client",
+    "start:all": "concurrently --names server,client --prefix-colors blue,green npm:start:server npm:start:client"
   },
   "devDependencies": {
-    "@types/node": "^26.6.2",
-    "typescript": "^7.0.2"
+    "concurrently": "^10.0.5"
   }
 }

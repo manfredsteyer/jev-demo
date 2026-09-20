@@ -1,0 +1,28 @@
+{
+  "name": "server",
+  "version": "1.0.0",
+  "description": "An AG-UI server that decides with Jev, consumed by an Angular app with CopilotKit",
+  "main": "src/index.ts",
+  "type": "module",
+  "scripts": {
+    "start": "node --env-file-if-exists=.env src/index.ts",
+    "dev": "node --watch --env-file-if-exists=.env src/index.ts",
+    "typecheck": "tsc --noEmit"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@ag-ui/core": "^1.0.0",
+    "@ag-ui/encoder": "^1.0.0",
+    "@typesafe-ai/sdk": "^0.6.0",
+    "cors": "^2.8.6",
+    "express": "^5.2.1"
+  },
+  "devDependencies": {
+    "@types/cors": "^2.8.19",
+    "@types/express": "^5.0.6",
+    "@types/node": "^26.6.2",
+    "typescript": "^7.0.2"
+  }
+}
