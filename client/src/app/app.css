@@ -1,3 +1,47 @@
-.chat-host {
+:host {
+  display: flex;
+  flex-direction: column;
   height: 100vh;
+}
+
+.shell-header {
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+  padding: 0.75rem 1.5rem;
+  border-bottom: 2px solid;
+  border-image: linear-gradient(90deg, var(--color-primary), var(--color-secondary)) 1;
+  background: #ffffff;
+}
+
+.brand {
+  font-weight: 700;
+  color: var(--color-ink);
+}
+
+nav {
+  display: flex;
+  gap: 0.5rem;
+}
+
+nav a {
+  padding: 0.35rem 0.85rem;
+  border-radius: 999px;
+  color: var(--color-ink);
+  text-decoration: none;
+}
+
+nav a:hover {
+  background: color-mix(in srgb, var(--color-primary) 12%, white);
+}
+
+nav a.active {
+  background: var(--color-primary);
+  color: #ffffff;
+}
+
+.shell-main {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
 }

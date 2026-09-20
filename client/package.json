@@ -11,6 +11,8 @@
   "private": true,
   "packageManager": "npm@11.18.0",
   "dependencies": {
+    "@a2ui/angular": "0.10.5",
+    "@a2ui/web_core": "0.10.6",
     "@ag-ui/client": "^0.0.59",
     "@angular/cdk": "^22.1.7",
     "@angular/common": "^22.1.0",
@@ -30,5 +32,12 @@
     "@angular/compiler-cli": "^22.1.0",
     "prettier": "^3.8.1",
     "typescript": "~6.0.2"
+  },
+  "overrides": {
+    "@a2ui/angular": {
+      "@angular/core": "$@angular/core",
+      "@angular/common": "$@angular/common",
+      "@angular/platform-browser": "$@angular/platform-browser"
+    }
   }
 }

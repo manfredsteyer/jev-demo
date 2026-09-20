@@ -1,3 +1,11 @@
-<main class="chat-host">
-  <copilot-chat agentId="default" />
+<header class="shell-header">
+  <span class="brand">Flight Assistant</span>
+  <nav aria-label="Main">
+    <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Chat</a>
+    <a routerLink="/dashboard" routerLinkActive="active">Dashboard</a>
+  </nav>
+</header>
+
+<main class="shell-main">
+  <router-outlet />
 </main>

@@ -1,0 +1,60 @@
+<section class="dashboard">
+  <h1>Dashboard</h1>
+
+  <form class="request" (submit)="generate(); $event.preventDefault()">
+    <textarea
+      id="description"
+      rows="9"
+      aria-label="Dashboard description"
+      placeholder="Describe the tiles you want, or start from an example …"
+      [formField]="requestForm.description"
+    ></textarea>
+
+    @for (problem of requestForm.description().errors(); track problem.kind) {
+      @if (requestForm.description().touched()) {
+        <p class="problem">{{ problem.message }}</p>
+      }
+    }
+
+    <div class="actions">
+      <button type="submit" class="primary" [disabled]="isRunning()">Generate</button>
+      @for (example of examples; track example.label) {
+        <button type="button" [disabled]="isRunning()" (click)="useExample(example)">
+          Example: {{ example.label }}
+        </button>
+      }
+      <span class="status" role="status">{{ status() }}</span>
+    </div>
+  </form>
+
+  @if (error()) {
+    <p class="problem" role="alert">{{ error() }}</p>
+  }
+
+  @for (note of notes(); track $index) {
+    <p class="note">{{ note }}</p>
+  }
+
+  @if (steps().length > 0) {
+    <details class="steps">
+      <summary>{{ steps().length }} tool calls</summary>
+      <ol>
+        @for (step of steps(); track step.id) {
+          <li>
+            <span class="step-name">{{ step.name }}</span>
+            @if (!step.done) {
+              <span class="step-pending">running</span>
+            }
+            <pre>{{ step.args }}</pre>
+          </li>
+        }
+      </ol>
+    </details>
+  }
+
+  <div class="dashboard-output">
+    @for (activity of activities(); track activity.id) {
+      <copilot-activity [message]="activity" [agentId]="agentId" />
+    }
+  </div>
+</section>

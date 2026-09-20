@@ -1,0 +1,131 @@
+:host {
+  display: block;
+  min-height: 100%;
+  background: var(--color-page);
+}
+
+.dashboard {
+  max-width: 72rem;
+  margin: 0 auto;
+  padding: 1.5rem;
+  color: var(--color-ink);
+}
+
+h1 {
+  margin: 0 0 1rem;
+  font-size: 1.5rem;
+}
+
+.request {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+textarea {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 0.75rem;
+  border: 1px solid var(--color-border);
+  border-radius: 0.75rem;
+  font: inherit;
+  resize: vertical;
+}
+
+textarea:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 1px;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+button {
+  padding: 0.5rem 1.1rem;
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
+  background: #ffffff;
+  color: var(--color-ink);
+  font: inherit;
+  cursor: pointer;
+}
+
+button:hover:not(:disabled) {
+  border-color: var(--color-primary);
+}
+
+button:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+button.primary {
+  border-color: var(--color-primary);
+  background: var(--color-primary);
+  color: #ffffff;
+  font-weight: 600;
+}
+
+button.primary:hover:not(:disabled) {
+  background: color-mix(in srgb, var(--color-primary) 85%, black);
+}
+
+.status {
+  color: color-mix(in srgb, var(--color-secondary) 75%, black);
+  font-style: italic;
+}
+
+.problem {
+  margin: 0.5rem 0 0;
+  color: #b91c1c;
+}
+
+.note {
+  margin: 1rem 0 0;
+  padding: 0.75rem 1rem;
+  border-left: 4px solid var(--color-primary);
+  border-radius: 0.5rem;
+  background: #ffffff;
+}
+
+.steps {
+  margin-top: 1rem;
+  color: var(--color-muted);
+}
+
+.steps summary {
+  cursor: pointer;
+}
+
+.steps ol {
+  margin: 0.5rem 0 0;
+  padding-left: 1.5rem;
+}
+
+.step-name {
+  font-weight: 600;
+}
+
+.step-pending {
+  margin-left: 0.5rem;
+  color: color-mix(in srgb, var(--color-secondary) 75%, black);
+  font-style: italic;
+}
+
+.steps pre {
+  margin: 0.25rem 0 0.75rem;
+  padding: 0.5rem 0.75rem;
+  overflow: auto;
+  max-height: 14rem;
+  border-radius: 0.5rem;
+  background: #ffffff;
+  font-size: 0.8rem;
+}
+
+.dashboard-output {
+  margin-top: 1.5rem;
+}

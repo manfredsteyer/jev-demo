@@ -92,6 +92,27 @@ export function emitToolCallResult(toolCallId: string, result: unknown, emit: Em
   emit({ type: EventType.TOOL_CALL_RESULT, messageId, toolCallId, content, role: 'tool' });
 }
 
+export function emitActivitySnapshot(
+  messageId: string,
+  activityType: string,
+  content: { [key: string]: unknown },
+  emit: Emit,
+): void {
+  emit({ type: EventType.ACTIVITY_SNAPSHOT, messageId, activityType, content });
+}
+
+export function emitActivityAppend(
+  messageId: string,
+  activityType: string,
+  listKey: string,
+  items: unknown[],
+  emit: Emit,
+): void {
+  const path = `/${listKey}/-`;
+  const patch = items.map((value) => ({ op: 'add' as const, path, value }));
+  emit({ type: EventType.ACTIVITY_DELTA, messageId, activityType, patch });
+}
+
 export function emitTextMessage(text: string, emit: Emit, messageId: string = randomUUID()): void {
   emit({ type: EventType.TEXT_MESSAGE_START, messageId, role: 'assistant' });
   emit({ type: EventType.TEXT_MESSAGE_CONTENT, messageId, delta: text });

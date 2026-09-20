@@ -1,15 +1,15 @@
 .flight {
   margin: 0.5rem 0;
   padding: 0.75rem 1rem;
-  border: 1px solid #d0d7de;
-  border-left: 4px solid #2563eb;
+  border: 1px solid var(--color-border);
+  border-left: 4px solid var(--color-primary);
   border-radius: 0.5rem;
-  background: #f8fafc;
-  color: #0f172a;
+  background: #ffffff;
+  color: var(--color-ink);
 }
 
 .flight.delayed {
-  border-left-color: #dc2626;
+  border-left-color: var(--color-secondary);
 }
 
 header {
@@ -26,8 +26,8 @@ header {
 .badge {
   padding: 0.1rem 0.5rem;
   border-radius: 999px;
-  background: #fee2e2;
-  color: #b91c1c;
+  background: color-mix(in srgb, var(--color-secondary) 14%, white);
+  color: color-mix(in srgb, var(--color-secondary) 70%, black);
   font-size: 0.75rem;
   text-transform: uppercase;
 }

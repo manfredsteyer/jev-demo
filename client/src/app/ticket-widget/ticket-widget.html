@@ -1,0 +1,68 @@
+<section class="ticket" [attr.aria-label]="'Boarding pass for flight ' + ticketId()">
+  <div class="main-stub">
+    <header class="ticket-header">
+      <span class="logo">
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M2 11 L22 2 L15 22 L11 14 Z" fill="currentColor" />
+        </svg>
+        Flight Assistant
+      </span>
+      <span class="ticket-class">BOARDING PASS</span>
+    </header>
+
+    <div class="route">
+      <div class="city">
+        <span class="city-name">{{ from() }}</span>
+        <span class="city-label">FROM</span>
+      </div>
+
+      <div class="plane" aria-hidden="true">
+        <svg viewBox="0 0 48 16">
+          <line x1="0" y1="8" x2="40" y2="8" stroke="currentColor" stroke-dasharray="2 2" />
+          <path d="M44 8 L32 2 L34 8 L32 14 Z" fill="currentColor" />
+        </svg>
+      </div>
+
+      <div class="city city-right">
+        <span class="city-name">{{ to() }}</span>
+        <span class="city-label">TO</span>
+      </div>
+    </div>
+
+    <dl class="meta">
+      <div>
+        <dt>Date</dt>
+        <dd>{{ departure() | date: 'yyyy-MM-dd' : 'UTC' }}</dd>
+      </div>
+      <div>
+        <dt>Boarding</dt>
+        <dd>{{ boarding() | date: 'HH:mm' : 'UTC' }}</dd>
+      </div>
+      <div>
+        <dt>Departure</dt>
+        <dd>{{ departure() | date: 'HH:mm' : 'UTC' }}</dd>
+      </div>
+      <div>
+        <dt>Gate</dt>
+        <dd>{{ gate }}</dd>
+      </div>
+    </dl>
+
+    @if (delay() > 0) {
+      <p class="delay-badge">Delayed by {{ delay() }} min</p>
+    }
+  </div>
+
+  <div class="perforation" aria-hidden="true"></div>
+
+  <dl class="boarding-stub">
+    <div>
+      <dt>Flight</dt>
+      <dd>#{{ ticketId() }}</dd>
+    </div>
+    <div>
+      <dt>Seat</dt>
+      <dd>{{ seat }}</dd>
+    </div>
+  </dl>
+</section>

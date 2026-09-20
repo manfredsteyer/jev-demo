@@ -2,20 +2,14 @@ import { choice, type TypeSafeClient, type SystemOneResult, type Usage } from '@
 import { getBookedFlights } from '../tools/bookings.ts';
 import { searchFlights, type Flight } from '../tools/flights.ts';
 import { SHOW_JEV_RESULT } from '../feature-flags.ts';
+import { CITIES, CITY_NAMES } from '../cities.ts';
 import type { State } from './state.ts';
 
-const CITIES = {
-  'Berlin': null, 'Bremen': null, 'Dresden': null, 'Frankfurt': null,
-  'Graz': null, 'Hamburg': null, 'Innsbruck': null, 'Linz': null,
-  'London': null, 'München': null, 'Paris': null, 'Rome': null,
-  'Salzburg': null, 'Stuttgart': null, 'Wien': null, 'Zürich': null,
+const PLACES = {
+  ...CITIES,
   'NOT_DEFINED': 'No place is named for this end of the journey.',
   'NOT_SUPPORTED': 'A place is named, but it is not one of the cities listed here.',
 } as const;
-
-const CITY_NAMES = Object.keys(CITIES).filter(
-  (name) => name !== 'NOT_DEFINED' && name !== 'NOT_SUPPORTED',
-);
 
 const CONVERSATION = '`conversation` is the exchange so far; the last entry is the new message.';
 
@@ -42,7 +36,7 @@ const QUESTIONS = {
       CONVERSATION +
       ' Earlier entries count only when the new message builds on them: the return flight ' +
       'of a flight in `flightsShown` starts where that flight ends.',
-    CITIES,
+    PLACES,
   ),
 
   to: choice(
@@ -50,7 +44,7 @@ const QUESTIONS = {
       CONVERSATION +
       ' Earlier entries count only when the new message builds on them: the return flight ' +
       'of a flight in `flightsShown` ends where that flight starts.',
-    CITIES,
+    PLACES,
   ),
 };
 
