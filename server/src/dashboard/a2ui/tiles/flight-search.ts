@@ -1,22 +1,8 @@
-import type { Flight } from '../../tools/flights.ts';
-import {
-  button,
-  column,
-  row,
-  text,
-  textField,
-  type Component,
-  type TileView,
-} from '../a2ui.ts';
-import type { FlightSearchTile } from '../spec.ts';
-import { toFlightList } from './flight-tables.ts';
+import { button, column, row, text, textField, type TileView } from '../protocol.ts';
+import type { FlightSearchTile } from '../../model.ts';
 import { toTile, type Fragment } from './layout.ts';
 
-export const SEARCH_FLIGHTS_ACTION = 'searchFlights';
-
-function toResultsId(tileId: string): string {
-  return `${tileId}-results`;
-}
+const SEARCH_FLIGHTS_ACTION = 'searchFlights';
 
 function toForm(id: string): Fragment {
   const fromId = `${id}-from`;
@@ -39,16 +25,6 @@ function toForm(id: string): Fragment {
 
 export function toFlightSearch(id: string, tile: FlightSearchTile): TileView {
   const form = toForm(id);
-  const resultsId = toResultsId(id);
-  const results = column(resultsId, []);
-  const placeholder = { root: resultsId, components: [results] };
   const data = { from: tile.defaultFrom, to: tile.defaultTo };
-  return toTile(id, 'Find a flight', [form, placeholder], data);
-}
-
-export function toSearchResults(tileId: string, flights: Flight[]): Component[] {
-  const resultsId = toResultsId(tileId);
-  const list = toFlightList(`${resultsId}-list`, flights, 'No flights found for this route.');
-  const results = column(resultsId, [list.root]);
-  return [results, ...list.components];
+  return toTile(id, 'Find a flight', [form], data);
 }

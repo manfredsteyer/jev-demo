@@ -1,4 +1,4 @@
-import type { Json } from '../../ag-ui.ts';
+import type { Json } from '../../../ag-ui.ts';
 import {
   card,
   column,
@@ -9,7 +9,7 @@ import {
   type Component,
   type TextVariant,
   type TileView,
-} from '../a2ui.ts';
+} from '../protocol.ts';
 
 export type Fragment = { root: string; components: Component[] };
 

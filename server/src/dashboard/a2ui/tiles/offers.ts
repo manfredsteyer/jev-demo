@@ -1,7 +1,7 @@
-import type { City } from '../../cities.ts';
-import type { TileView } from '../a2ui.ts';
-import type { HotelsTile, RentalCarsTile } from '../spec.ts';
-import type { Tools } from '../tools.ts';
+import type { City } from '../../../cities.ts';
+import type { TileView } from '../protocol.ts';
+import type { HotelsTile, RentalCarsTile } from '../../model.ts';
+import type { Tools } from '../../tools.ts';
 import { findNextFlights } from './bookings.ts';
 import { toPhotoList, toTile } from './layout.ts';
 

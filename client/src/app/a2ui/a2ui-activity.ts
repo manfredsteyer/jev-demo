@@ -5,17 +5,15 @@ import {
   ChangeDetectionStrategy,
   Component,
   DestroyRef,
+  ElementRef,
   computed,
   effect,
   inject,
   input,
   signal,
+  viewChild,
 } from '@angular/core';
-import {
-  CopilotKit,
-  type ActivityRenderer,
-  type RenderActivityMessageConfig,
-} from '@copilotkit/angular';
+import type { ActivityRenderer, RenderActivityMessageConfig } from '@copilotkit/angular';
 import { z } from 'zod';
 
 const operation = z.custom<A2uiMessage>();
@@ -50,10 +48,47 @@ function toSurfaceId(message: A2uiMessage | undefined): string | null {
     } @else if (surfaceId(); as id) {
       <a2ui-v09-surface [surfaceId]="id" />
     }
+    <dialog #info>
+      <p>Not implemented in this demo.</p>
+      <form method="dialog">
+        <button>Close</button>
+      </form>
+    </dialog>
   `,
   styles: `
-    p {
+    p[role='alert'] {
       color: #b91c1c;
+    }
+
+    dialog {
+      max-width: 22rem;
+      padding: 1.25rem;
+      border: 1px solid var(--color-border);
+      border-radius: 1rem;
+      color: var(--color-ink);
+      box-shadow: 0 6px 16px rgba(15, 23, 42, 0.07);
+    }
+
+    dialog::backdrop {
+      background: rgba(15, 23, 42, 0.35);
+    }
+
+    dialog p {
+      margin: 0 0 1rem;
+    }
+
+    dialog button {
+      padding: 0.4rem 1.1rem;
+      border: 1px solid var(--color-border);
+      border-radius: 999px;
+      background: #ffffff;
+      color: inherit;
+      font: inherit;
+      cursor: pointer;
+    }
+
+    dialog button:hover {
+      border-color: var(--color-primary);
     }
   `,
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -65,7 +100,7 @@ export class A2uiActivity implements ActivityRenderer<A2uiContent> {
   readonly agent = input<AbstractAgent>();
 
   private readonly renderer = inject(A2uiRendererService);
-  private readonly copilotKit = inject(CopilotKit);
+  private readonly info = viewChild.required<ElementRef<HTMLDialogElement>>('info');
 
   private renderedSurfaceId: string | null = null;
   private processedOperations = 0;
@@ -79,7 +114,7 @@ export class A2uiActivity implements ActivityRenderer<A2uiContent> {
     });
 
     const subscription = this.renderer.surfaceGroup.onAction.subscribe((action) => {
-      this.forward(action);
+      this.showNotImplemented(action);
     });
 
     inject(DestroyRef).onDestroy(() => {
@@ -116,14 +151,12 @@ export class A2uiActivity implements ActivityRenderer<A2uiContent> {
     this.processedOperations = 0;
   }
 
-  private forward(action: A2uiClientAction): void {
-    const agent = this.agent();
-    if (agent === undefined || action.surfaceId !== this.renderedSurfaceId) {
+  private showNotImplemented(action: A2uiClientAction): void {
+    if (action.surfaceId !== this.renderedSurfaceId) {
       return;
     }
-    const { name, surfaceId, context } = action;
-    const forwardedProps = { a2uiAction: { userAction: { name, surfaceId, context } } };
-    void this.copilotKit.core.runAgent({ agent, forwardedProps });
+    const dialog = this.info();
+    dialog.nativeElement.showModal();
   }
 }
 

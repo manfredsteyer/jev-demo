@@ -7,9 +7,9 @@ import {
   type Component,
   type Operation,
   type TileView,
-} from './a2ui.ts';
-import type { DashboardSpec, Tile } from './spec.ts';
-import type { Tools } from './tools.ts';
+} from './protocol.ts';
+import type { DashboardSpec, Tile } from '../model.ts';
+import type { Tools } from '../tools.ts';
 import { toBoardingPasses, toBookedFlightsList, toWeatherList } from './tiles/bookings.ts';
 import { toDelayShareChart, toDelaysPerDayChart } from './tiles/delay-charts.ts';
 import { toFlightSearch } from './tiles/flight-search.ts';

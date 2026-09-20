@@ -6,11 +6,12 @@ export const EXAMPLES: Example[] = [
     description: `Build a flights analytics dashboard.
 
 Include the following tiles:
-- A table with all flights from Graz to Hamburg.
+- A table with 3 flights from Graz to Hamburg.
 - A table with all delayed flights from Graz to Hamburg.
 - A bar chart comparing on-time vs. delayed flights from Graz to Hamburg, aggregated by day.
 - A pie chart with the delayed vs. on-time share for Graz to Hamburg overall.
-- The same tiles for flights from Hamburg to Graz.`,
+- A "Rent a car" tile with a list of possible cars.
+- A "Book hotel" tile with a list of possible hotels.`,
   },
   {
     label: 'My travel',

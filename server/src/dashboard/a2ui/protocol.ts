@@ -1,4 +1,4 @@
-import type { Json } from '../ag-ui.ts';
+import type { Json } from '../../ag-ui.ts';
 
 export const A2UI_VERSION = 'v0.9';
 

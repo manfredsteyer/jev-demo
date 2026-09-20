@@ -1,7 +1,7 @@
-import type { Flight } from '../../tools/flights.ts';
-import type { TileView } from '../a2ui.ts';
-import type { DelayedFlightsTableTile, FlightsTableTile } from '../spec.ts';
-import type { Tools } from '../tools.ts';
+import type { Flight } from '../../../tools/flights.ts';
+import type { TileView } from '../protocol.ts';
+import type { DelayedFlightsTableTile, FlightsTableTile } from '../../model.ts';
+import type { Tools } from '../../tools.ts';
 import { toParagraph, toTable, toTile, type Fragment } from './layout.ts';
 
 const HEADERS = ['Flight', 'Date', 'Time', 'Status'];

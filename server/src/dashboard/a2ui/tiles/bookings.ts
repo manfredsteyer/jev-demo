@@ -1,15 +1,12 @@
-import { isCheckedIn } from '../../tools/check-in.ts';
-import type { Flight } from '../../tools/flights.ts';
-import type { Forecast } from '../../tools/weather.ts';
-import { button, column, text, ticket, type Component, type TileView } from '../a2ui.ts';
-import type { BoardingPassesTile, BookedFlightsListTile, WeatherListTile } from '../spec.ts';
-import type { Tools } from '../tools.ts';
+import type { Flight } from '../../../tools/flights.ts';
+import type { Forecast } from '../../../tools/weather.ts';
+import { button, column, text, ticket, type Component, type TileView } from '../protocol.ts';
+import type { BoardingPassesTile, BookedFlightsListTile, WeatherListTile } from '../../model.ts';
+import type { Tools } from '../../tools.ts';
 import { toDay, toStatus } from './flight-tables.ts';
 import { toParagraph, toTable, toTile, type Fragment } from './layout.ts';
 
-export const CHECK_IN_ACTION = 'checkIn';
-
-const CHECKED_IN = 'Checked in ✓';
+const CHECK_IN_ACTION = 'checkIn';
 
 const NO_BOOKINGS = 'You have no booked flights.';
 
@@ -71,12 +68,6 @@ function toEntry(id: string, extras: Component[]): Component {
   return column(id, [`${id}-route`, `${id}-details`, ...extraIds], 'start');
 }
 
-export function toCheckedIn(entryId: string): Component[] {
-  const status = text(`${entryId}-checked-in`, CHECKED_IN, 'caption');
-  const entry = toEntry(entryId, [status]);
-  return [entry, status];
-}
-
 function toCheckIn(entryId: string, flight: Flight): Component[] {
   const buttonId = `${entryId}-check-in`;
   const labelId = `${buttonId}-label`;
@@ -96,7 +87,7 @@ function toEntryParts(entryId: string, flight: Flight, showCheckInButton: boolea
   if (!showCheckInButton) {
     return toPlainEntry(entryId);
   }
-  return isCheckedIn(flight.id) ? toCheckedIn(entryId) : toCheckIn(entryId, flight);
+  return toCheckIn(entryId, flight);
 }
 
 async function toBooking(

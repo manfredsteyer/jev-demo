@@ -41,6 +41,14 @@ body {
   font-family: system-ui, sans-serif;
 }
 
+[data-copilotkit] {
+  --background: var(--color-page);
+}
+
+copilot-chat-view-feather div {
+  background-image: linear-gradient(to top in oklab, var(--color-page) 50%, transparent);
+}
+
 .dashboard-output a2ui-v09-surface > a2ui-v09-component-host > a2ui-v09-column {
   display: grid !important;
   grid-template-columns: minmax(0, 1fr);

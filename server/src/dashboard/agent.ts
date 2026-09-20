@@ -2,7 +2,6 @@ import { randomUUID } from 'node:crypto';
 import type { RunAgentInput } from '@ag-ui/core';
 import type { TypeSafeClient, Usage } from '@typesafe-ai/sdk';
 import {
-  emitActivityAppend,
   emitActivitySnapshot,
   emitRunError,
   emitRunFinished,
@@ -14,11 +13,10 @@ import {
   type Emit,
 } from '../ag-ui.ts';
 import { SHOW_TOKEN_USAGE } from '../feature-flags.ts';
-import { A2UI_ACTIVITY_TYPE, A2UI_OPERATIONS_KEY } from './a2ui.ts';
-import { readAction, runAction, type UserAction } from './actions.ts';
-import { compile } from './compile.ts';
+import { compile } from './a2ui/compile.ts';
+import { A2UI_ACTIVITY_TYPE, A2UI_OPERATIONS_KEY } from './a2ui/protocol.ts';
 import { describe } from './describe.ts';
-import type { DashboardSpec } from './spec.ts';
+import type { DashboardSpec } from './model.ts';
 import { createTools } from './tools.ts';
 
 const RENDER_DASHBOARD = 'renderDashboard';
@@ -66,12 +64,6 @@ async function generate(client: TypeSafeClient, input: RunAgentInput, emit: Emit
   }
 }
 
-async function react(action: UserAction, emit: Emit): Promise<void> {
-  const tools = createTools(emit);
-  const operations = await runAction(action, tools);
-  emitActivityAppend(action.surfaceId, A2UI_ACTIVITY_TYPE, A2UI_OPERATIONS_KEY, operations, emit);
-}
-
 export async function runDashboardAgent(
   client: TypeSafeClient,
   input: RunAgentInput,
@@ -80,12 +72,7 @@ export async function runDashboardAgent(
   emitRunStarted(input, emit);
 
   try {
-    const action = readAction(input);
-    if (action === null) {
-      await generate(client, input, emit);
-    } else {
-      await react(action, emit);
-    }
+    await generate(client, input, emit);
     emitRunFinished(input, emit);
   } catch (error) {
     emitRunError(error, emit);

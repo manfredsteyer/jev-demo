@@ -44,4 +44,5 @@ nav a.active {
   flex: 1;
   min-height: 0;
   overflow: auto;
+  background: var(--color-page);
 }

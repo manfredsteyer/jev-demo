@@ -1,8 +1,8 @@
-import { renderBarChart, renderPieChart } from '../../tools/charts.ts';
-import type { Flight } from '../../tools/flights.ts';
-import { image, type TileView } from '../a2ui.ts';
-import type { DelayShareChartTile, DelaysPerDayChartTile } from '../spec.ts';
-import type { Tools } from '../tools.ts';
+import { renderBarChart, renderPieChart } from '../../../tools/charts.ts';
+import type { Flight } from '../../../tools/flights.ts';
+import { image, type TileView } from '../protocol.ts';
+import type { DelayShareChartTile, DelaysPerDayChartTile } from '../../model.ts';
+import type { Tools } from '../../tools.ts';
 import { toDay } from './flight-tables.ts';
 import { toTile, type Fragment } from './layout.ts';
 
