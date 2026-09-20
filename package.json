@@ -1,0 +1,21 @@
+{
+  "name": "first-steps",
+  "version": "1.0.0",
+  "description": "A minimal example of calling functions with Jev",
+  "main": "src/index.ts",
+  "type": "module",
+  "scripts": {
+    "start": "node --env-file-if-exists=.env src/index.ts",
+    "typecheck": "tsc --noEmit"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@typesafe-ai/sdk": "^0.6.0"
+  },
+  "devDependencies": {
+    "@types/node": "^26.6.2",
+    "typescript": "^7.0.2"
+  }
+}
